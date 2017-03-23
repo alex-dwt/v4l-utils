@@ -14,11 +14,26 @@
 #include <sys/mman.h>
 #include <dirent.h>
 #include <math.h>
+#include <time.h>
+#include <ctime>
+#include <string>
+#include <sstream>
 
 #include "v4l2-ctl.h"
 
 extern "C" {
 #include "vivid-tpg.h"
+}
+
+int framePostfix = 0;
+namespace patch
+{
+    template < typename T > std::string to_string( const T& n )
+    {
+        std::ostringstream stm ;
+        stm << n ;
+        return stm.str() ;
+    }
 }
 
 static unsigned stream_count;
@@ -858,7 +873,25 @@ static int do_handle_cap(int fd, buffers &b, FILE *fout, int *index,
 				offset = 0;
 			}
 			used -= offset;
-			sz = fwrite((char *)b.bufs[buf.index][j] + offset, 1, used, fout);
+
+			time_t rawtime;
+			struct tm * timeinfo;
+			char buffer[80];
+			time (&rawtime);
+			timeinfo = localtime(&rawtime);
+			strftime(buffer,sizeof(buffer),"%Y-%m-%d_%H:%M:%S",timeinfo);
+			std::string str(buffer);
+			FILE *fout_;
+			std::string path = "/tmp/v4l/";
+			path.append(str);
+			path.append("_");
+			path.append(patch::to_string(framePostfix++));
+			path.append(".jpg");
+			fout_ = fopen(path.c_str(),"w");
+
+			sz = fwrite((char *)b.bufs[buf.index][j] + offset, 1, used, fout_);
+
+			fclose(fout_);
 
 			if (sz != used)
 				fprintf(stderr, "%u != %u\n", sz, used);
