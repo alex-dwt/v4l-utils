@@ -26,6 +26,7 @@ extern "C" {
 }
 
 int framePostfix = 0;
+std::string currentDirTimestamp = "";
 namespace patch
 {
     template < typename T > std::string to_string( const T& n )
@@ -881,8 +882,22 @@ static int do_handle_cap(int fd, buffers &b, FILE *fout, int *index,
 			timeinfo = localtime(&rawtime);
 			strftime(buffer,sizeof(buffer),"%Y-%m-%d_%H:%M:%S",timeinfo);
 			std::string str(buffer);
+
+			if (currentDirTimestamp == "") {
+					std::time_t t = std::time(0);
+					currentDirTimestamp = patch::to_string(t);
+			}
+
 			FILE *fout_;
 			std::string path = "/tmp/v4l/";
+			path.append(currentDirTimestamp);
+
+			struct stat st = {0};
+			if (stat(path.c_str(), &st) == -1) {
+				mkdir(path.c_str(), 0777);
+			}
+
+			path.append("/");
 			path.append(str);
 			path.append("_");
 			path.append(patch::to_string(framePostfix++));
