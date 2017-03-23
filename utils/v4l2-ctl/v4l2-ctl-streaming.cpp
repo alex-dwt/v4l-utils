@@ -883,10 +883,16 @@ static int do_handle_cap(int fd, buffers &b, FILE *fout, int *index,
 			strftime(buffer,sizeof(buffer),"%Y-%m-%d_%H:%M:%S",timeinfo);
 			std::string str(buffer);
 
+			std::time_t t = std::time(0);
 			if (currentDirTimestamp == "") {
-					std::time_t t = std::time(0);
 					currentDirTimestamp = patch::to_string(t);
+			} else {
+					if (atoi(patch::to_string(t).c_str()) - atoi(currentDirTimestamp.c_str()) >= 60) {
+						    currentDirTimestamp = patch::to_string(t);
+						    framePostfix=0;
+					}
 			}
+
 
 			FILE *fout_;
 			std::string path = "/tmp/v4l/";
