@@ -931,10 +931,11 @@ static int do_handle_cap(int fd, buffers &b, FILE *fout, int *index,
 	if (index)
 		*index = buf.index;
 
-	if (!verbose) {
+/*	if (!verbose) {
 		fprintf(stderr, "%c", ch);
 		fflush(stderr);
 	}
+*/
 
 	if (count == 0) {
 		clock_gettime(CLOCK_MONOTONIC, &ts_last);
@@ -953,7 +954,7 @@ static int do_handle_cap(int fd, buffers &b, FILE *fout, int *index,
 			unsigned fps = (10000 * count) /
 				(res.tv_sec * 100 + res.tv_nsec / 10000000);
 			last_sec = res.tv_sec;
-			fprintf(stderr, " %d.%02d fps\n", fps / 100, fps % 100);
+			fprintf(stderr, "%d.%02d\n", fps / 100, fps % 100);
 		}
 	}
 	count++;
