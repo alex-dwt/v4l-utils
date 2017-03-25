@@ -27,6 +27,7 @@ extern "C" {
 
 int framePostfix = 0;
 std::string currentDirTimestamp = "";
+int currentFps = 0;
 namespace patch
 {
     template < typename T > std::string to_string( const T& n )
@@ -896,6 +897,7 @@ static int do_handle_cap(int fd, buffers &b, FILE *fout, int *index,
 
 			FILE *fout_;
 			std::string path = "/tmp/v4l/";
+			std::string currentFilename = str;
 			path.append(currentDirTimestamp);
 
 			struct stat st = {0};
@@ -906,11 +908,15 @@ static int do_handle_cap(int fd, buffers &b, FILE *fout, int *index,
 			path.append("/");
 			path.append(str);
 			path.append("_");
-			path.append(patch::to_string(framePostfix++));
+			path.append(patch::to_string(framePostfix));
+			currentFilename.append("_");
+			currentFilename.append(patch::to_string(framePostfix));
+			framePostfix++;
 			path.append(".jpg");
 			fout_ = fopen(path.c_str(),"w");
 
 			sz = fwrite((char *)b.bufs[buf.index][j] + offset, 1, used, fout_);
+			fprintf(stderr, "##%s##%s##%d##\n", currentDirTimestamp.c_str(), currentFilename.c_str(), currentFps);
 
 			fclose(fout_);
 
@@ -954,7 +960,8 @@ static int do_handle_cap(int fd, buffers &b, FILE *fout, int *index,
 			unsigned fps = (10000 * count) /
 				(res.tv_sec * 100 + res.tv_nsec / 10000000);
 			last_sec = res.tv_sec;
-			fprintf(stderr, "%d.%02d\n", fps / 100, fps % 100);
+			// fprintf(stderr, "%d.%02d\n", fps / 100, fps % 100);
+			currentFps = fps / 100;
 		}
 	}
 	count++;
