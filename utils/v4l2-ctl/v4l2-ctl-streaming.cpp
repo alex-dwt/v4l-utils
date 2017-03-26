@@ -896,7 +896,7 @@ static int do_handle_cap(int fd, buffers &b, FILE *fout, int *index,
 
 
 			FILE *fout_;
-			std::string path = "/tmp/v4l/";
+			std::string path = "/RecordedData/Tmpfs/";
 			std::string currentFilename = str;
 			path.append(currentDirTimestamp);
 
